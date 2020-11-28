@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "680415983850",
+    "firebase_url": "https://gerenciador-local.firebaseio.com",
+    "project_id": "gerenciador-local",
+    "storage_bucket": "gerenciador-local.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680415983850:android:d09868ce8c0cc1fe573f93",
+        "android_client_info": {
+          "package_name": "e.gusta.gerenciador_local"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "680415983850-bk5p8tsc9u8tvkcv6700fcppn63pi19s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG3HAik60PU4Uid-YdZ0EAMD3AsiX-4GI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "680415983850-bk5p8tsc9u8tvkcv6700fcppn63pi19s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
