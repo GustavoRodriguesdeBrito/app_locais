@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -49,7 +52,9 @@ public class CadastroLocalActivity extends AppCompatActivity {
     private static final int GPS_REQUEST_PERMISSION_CODE = 1001;
     private FirebaseFirestore db;
     private StorageReference storeRef;
-    private Bitmap imagemFull;
+    private FirebaseUser usuarioAtual;
+    private Bitmap imagemFull; //TODO: get img full size
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
         imagem = findViewById(R.id.foto);
         db = FirebaseFirestore.getInstance();
         storeRef = FirebaseStorage.getInstance().getReference("imagens");
+        usuarioAtual = FirebaseAuth.getInstance().getCurrentUser();
         locationManager =
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -93,9 +99,6 @@ public class CadastroLocalActivity extends AppCompatActivity {
         }
     }
 
-
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
     /**
      * Método(s) para tirar a foto
      */
@@ -119,13 +122,16 @@ public class CadastroLocalActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             //data. //TODO: imagem full size
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            Log.d("==== INITIAL BMP: ==== ", imageBitmap.getWidth()+", "+imageBitmap.getHeight());
+            //Log.d("==== INITIAL BMP: ==== ", imageBitmap.getWidth()+", "+imageBitmap.getHeight());
             imagem.setImageBitmap(imageBitmap);
         }
     }
 
-    public void testeCad(View view) {
-        storeRef.child(UUID.randomUUID() + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
+    public void cadastrarLocal(View view) {
+        //gerando um nome único para a imagem
+        UUID nomeUnicoImagem = UUID.randomUUID();
+        //cadastrando a imagem primeiro para obter a ID dela e garantir que os dados escritos não sejam inseridos sem a imagem
+        storeRef.child(nomeUnicoImagem + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
                 .addOnSuccessListener(taskSnapshot -> {
                     Toast.makeText(this, "TASKSNAP\n" + taskSnapshot.getMetadata().toString(), Toast.LENGTH_SHORT).show();
                 })
@@ -134,24 +140,37 @@ public class CadastroLocalActivity extends AppCompatActivity {
                     Toast.makeText(this, "um erro ocorreu no upload da imagem", Toast.LENGTH_SHORT).show();
                 });
 
+        localACadastrar = new Local(
+                usuarioAtual.getUid(),
+                Calendar.getInstance().getTime(),
+                txtDesc.getText().toString(),
+                GPSlocal.getLatitude(),
+                GPSlocal.getLongitude(),
+                nomeUnicoImagem.toString()
+        );
+
         // criando o objeto para enviar para o banco de dados
         Map<String, Object> local = new HashMap<>();
-        local.put("descricao",txtDesc.getText().toString());
-        local.put("lat", GPSlocal.getLatitude());
-        local.put("long", GPSlocal.getLongitude());
-        local.put("dataCadastro", Calendar.getInstance().getTime());
-
-
+        local.put("idUsuario", localACadastrar.getIdUsuario());
+        local.put("idImagem", localACadastrar.getIdImagem());
+        local.put("descricao", localACadastrar.getDescricao());
+        local.put("lat", localACadastrar.getLat());
+        local.put("long", localACadastrar.getLong());
+        local.put("dataCadastro", localACadastrar.getdataCadastro());
 
         db.collection("locais")
                 .add(local)
                 .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
-                    Toast.makeText(this, "cadastro feito. gen ID:\n"+documentReference.getId(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "cadastro feito. gen ID:\n" + documentReference.getId(), Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener((OnFailureListener) e -> {
                     e.printStackTrace();
                     Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    public void voltar(View view) {
+        finish();
     }
 
 
@@ -192,7 +211,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, permissions[0] + "\npermit granted", Toast.LENGTH_SHORT).show();
                     getLocal();
-                }  else {
+                } else {
                     Toast.makeText(this, "Este app não irá funcionar sem a permissão", Toast.LENGTH_SHORT).show();
                 }
                 return;

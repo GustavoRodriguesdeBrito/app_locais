@@ -6,52 +6,67 @@
     android:layout_height="match_parent"
     tools:context=".activities.CadastroLocalActivity">
 
+    <Button
+        android:id="@+id/btnVoltar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/purple_200"
+        android:padding="16dp"
+        android:text="@string/voltar"
+        android:onClick="voltar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btnCadastrarLocal"
+        app:layout_constraintTop_toBottomOf="@id/descricaoFoto" />
+
+
+    <Button
+        android:id="@+id/btnCadastrarLocal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:onClick="cadastrarLocal"
+        android:padding="16dp"
+        android:text="@string/cadastrar_local"
+        app:layout_constraintLeft_toRightOf="@id/btnVoltar"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/descricaoFoto" />
+
     <EditText
         android:id="@+id/descricaoFoto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="20dp"
         android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="20dp"
         android:autofillHints=""
-        android:hint="Descrição da foto"
+        android:hint="@string/descri_o_da_foto"
         android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/foto" />
-
+        app:layout_constraintTop_toBottomOf="@id/local" />
 
     <ImageView
         android:id="@+id/foto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="foto tirada"
+        android:layout_marginVertical="60dp"
+        android:contentDescription="@string/foto_tirada"
         android:minWidth="70dp"
         android:minHeight="100dp"
+        android:onClick="tirarFoto"
         android:src="@drawable/ic_placeholder"
-        android:layout_marginVertical="60dp"
+        app:layout_constraintBottom_toTopOf="@id/descricaoFoto"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/descricaoFoto"
-        android:onClick="tirarFoto"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:text="local"
         android:id="@+id/local"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="20dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/descricaoFoto" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/local"
-        android:padding="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="20dp"
-        android:text="Cadastrar foto"
-        android:onClick="testeCad"/>
+        android:text="@string/coordenadas_do_local"
+        app:layout_constraintTop_toBottomOf="@id/foto" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

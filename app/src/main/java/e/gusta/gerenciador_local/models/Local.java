@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Local implements Comparable<Local>{
     private String idUsuario;
-    private Date dataCadsatro;
+    private Date dataCadastro;
     private String descricao;
     private double latitude;
     private double longitude;
@@ -19,12 +19,12 @@ public class Local implements Comparable<Local>{
         this.idUsuario = idUsuario;
     }
 
-    public Date getDataCadsatro() {
-        return dataCadsatro;
+    public Date getdataCadastro() {
+        return dataCadastro;
     }
 
-    public void setDataCadsatro(Date dataCadsatro) {
-        this.dataCadsatro = dataCadsatro;
+    public void setdataCadastro(Date dataCadastro) {
+        this.dataCadastro = dataCadastro;
     }
 
     public String getDescricao() {
@@ -35,19 +35,19 @@ public class Local implements Comparable<Local>{
         this.descricao = descricao;
     }
 
-    public double getLatitude() {
+    public double getLat() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLat(double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public double getLong() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLong(double longitude) {
         this.longitude = longitude;
     }
 
@@ -59,9 +59,30 @@ public class Local implements Comparable<Local>{
         this.idImagem = idImagem;
     }
 
+    public Local(String idUsuario, Date dataCadastro, String descricao, double latitude, double longitude, String idImagem) {
+        this.idUsuario = idUsuario;
+        this.dataCadastro = dataCadastro;
+        this.descricao = descricao;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.idImagem = idImagem;
+    }
+
     public Local (){}
     @Override
     public int compareTo(Local local) {
-        return this.dataCadsatro.compareTo(local.dataCadsatro);
+        return this.dataCadastro.compareTo(local.dataCadastro);
+    }
+
+    @Override
+    public String toString() {
+        return "Local{" +
+                "idUsuario='" + idUsuario + '\'' +
+                ", dataCadastro=" + dataCadastro +
+                ", descricao='" + descricao + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", idImagem='" + idImagem + '\'' +
+                '}';
     }
 }
