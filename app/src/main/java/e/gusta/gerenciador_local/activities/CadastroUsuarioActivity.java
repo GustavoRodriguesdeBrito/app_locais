@@ -41,10 +41,11 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
                     this.txtLogin.getText().toString(),
                     this.txtSenha.getText().toString()
             ).addOnSuccessListener(authResult -> {
-                Toast.makeText(this, authResult.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Cadastrado com sucesso", Toast.LENGTH_SHORT).show();
+                finish();
             }).addOnFailureListener(e -> {
                 e.printStackTrace();
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Houve um erro ao cadastrar", Toast.LENGTH_SHORT).show();
             });
         }
     }

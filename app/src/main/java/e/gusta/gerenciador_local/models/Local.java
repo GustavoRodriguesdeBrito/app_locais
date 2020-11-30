@@ -2,7 +2,8 @@ package e.gusta.gerenciador_local.models;
 
 import java.util.Date;
 
-public class Local implements Comparable<Local>{
+public class Local implements Comparable<Local> {
+    private String idLocal;
     private String idUsuario;
     private Date dataCadastro;
     private String descricao;
@@ -10,6 +11,14 @@ public class Local implements Comparable<Local>{
     private double longitude;
     private String idImagem;
 
+
+    public String getIdLocal() {
+        return idLocal;
+    }
+
+    public void setIdLocal(String idLocal) {
+        this.idLocal = idLocal;
+    }
 
     public String getIdUsuario() {
         return idUsuario;
@@ -59,7 +68,8 @@ public class Local implements Comparable<Local>{
         this.idImagem = idImagem;
     }
 
-    public Local(String idUsuario, Date dataCadastro, String descricao, double latitude, double longitude, String idImagem) {
+    public Local(String idLocal, String idUsuario, Date dataCadastro, String descricao, double latitude, double longitude, String idImagem) {
+        this.idLocal = idLocal;
         this.idUsuario = idUsuario;
         this.dataCadastro = dataCadastro;
         this.descricao = descricao;
@@ -68,7 +78,9 @@ public class Local implements Comparable<Local>{
         this.idImagem = idImagem;
     }
 
-    public Local (){}
+    public Local() {
+    }
+
     @Override
     public int compareTo(Local local) {
         return this.dataCadastro.compareTo(local.dataCadastro);
@@ -77,6 +89,7 @@ public class Local implements Comparable<Local>{
     @Override
     public String toString() {
         return "Local{" +
+                "idLocal='" + idLocal + '\'' +
                 "idUsuario='" + idUsuario + '\'' +
                 ", dataCadastro=" + dataCadastro +
                 ", descricao='" + descricao + '\'' +

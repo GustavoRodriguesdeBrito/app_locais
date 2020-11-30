@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
                     for (Object arrLoc : arrLocS) {
                         DocumentSnapshot doc = (DocumentSnapshot) arrLoc;
-
-                        Local local = new Local(doc.get("idUsuario").toString(),
+                        Local local = new Local(doc.getId(),
+                                doc.get("idUsuario").toString(),
                                 ((Timestamp) doc.get("dataCadastro")).toDate(),
                                 doc.get("descricao").toString(),
                                 (Double) doc.get("lat"),

@@ -1,6 +1,8 @@
 package e.gusta.gerenciador_local.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -27,6 +30,7 @@ import e.gusta.gerenciador_local.models.Local;
 public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.LocalViewHolder> {
 
     private StorageReference storeRef;
+    private FirebaseFirestore db;
 
     private LayoutInflater inflater;
     private LinkedList<Local> listaLocais;
@@ -65,9 +69,44 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.LocalViewHol
 
         @Override
         public boolean onLongClick(View view) {
-            int pos = getLayoutPosition();
-            Toast.makeText(view.getContext(), "Item " + pos + " clicado-LONG", Toast.LENGTH_SHORT).show();
+            showDeleteDialog();
             return true;
+        }
+
+        private void showDeleteDialog(){
+            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            builder.setTitle(R.string.delete);
+            builder.setMessage(R.string.delete_dialog);
+            builder.setPositiveButton(R.string.positive, (dialog, which) -> deletar());
+            builder.setNegativeButton(R.string.negative, (dialog, which) -> dialog.dismiss());
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+
+        }
+
+        private void deletar() {
+            int pos = getLayoutPosition();
+            Local localADeletar = adapter.listaLocais.get(pos);
+
+            adapter.storeRef.child(localADeletar.getIdImagem() + ".png").delete()
+                    .addOnSuccessListener(aVoid -> {
+                        adapter.db.collection("locais").document(localADeletar.getIdLocal()).delete()
+                                .addOnSuccessListener(bVoid -> {
+                                    adapter.listaLocais.remove(pos);
+                                    adapter.notifyDataSetChanged();
+                                })
+                                .addOnFailureListener(e -> {
+                                    e.printStackTrace();
+                                    Toast.makeText(itemView.getContext(), "Houve um erro ao deletar o local", Toast.LENGTH_SHORT).show();
+                                    Log.i("ERRDEL", "HOUVE UM ERRO AO DELETAR ITEM " + localADeletar.getIdLocal());
+                                });
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        Toast.makeText(itemView.getContext(), "Houve um erro ao deletar o local", Toast.LENGTH_SHORT).show();
+                        Log.i("ERRDEL", "HOUVE UM ERRO AO DELETAR IMAGEM " + localADeletar.getIdImagem());
+                    });
         }
     }
 
@@ -75,6 +114,7 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.LocalViewHol
         inflater = LayoutInflater.from(context);
         this.listaLocais = listaLocais;
         storeRef = FirebaseStorage.getInstance().getReference("imagens");
+        db = FirebaseFirestore.getInstance();
     }
 
     /**

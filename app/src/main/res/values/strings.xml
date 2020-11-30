@@ -1,14 +1,18 @@
 <resources>
-    <string name="app_name">Gerenciador_local</string>
-    <string name="dica_login">Digite seu login</string>
+    <string name="app_name">Gerenciador de locais</string>
+    <string name="dica_login">Digite seu E-mail</string>
     <string name="dica_senha">Digite sua senha</string>
-    <string name="quero_me_cadastrar">Quero me cadastrar</string>
-    <string name="data_nome">Em %s, %s diz:</string>
-    <string name="digite_sua_mensagem">Digite a sua mensagem</string>
+    <string name="titulo_cad">Cadastre-se</string>
+    <string name="titulo_login">Login</string>
+    <string name="quero_me_cadastrar">Não tenho cadastro</string>
     <string name="cadastrar_local">Cadastrar local</string>
     <string name="voltar">Voltar</string>
     <string name="coordenadas_do_local">Coordenadas do local</string>
     <string name="foto_tirada">foto tirada</string>
     <string name="descri_o_da_foto">Descrição da foto</string>
     <string name="cadastrar_novo_local">Cadastrar novo local</string>
+    <string name="delete">Deletar?</string>
+    <string name="delete_dialog">Deseja deletar este item?</string>
+    <string name="positive">sim</string>
+    <string name="negative">não</string>
 </resources>

@@ -133,9 +133,9 @@ public class CadastroLocalActivity extends AppCompatActivity {
         //cadastrando a imagem primeiro para obter a ID dela e garantir que os dados escritos não sejam inseridos sem a imagem
         storeRef.child(nomeUnicoImagem + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
                 .addOnSuccessListener(taskSnapshot -> {
-                    Toast.makeText(this, "TASKSNAP\n" + taskSnapshot.getMetadata().getName(), Toast.LENGTH_SHORT).show();
 
                     localACadastrar = new Local(
+                            "",
                             usuarioAtual.getUid(),
                             Calendar.getInstance().getTime(),
                             txtDesc.getText().toString(),
@@ -156,7 +156,8 @@ public class CadastroLocalActivity extends AppCompatActivity {
                     db.collection("locais")
                             .add(local)
                             .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
-                                Toast.makeText(this, "cadastro feito. gen ID:\n" + documentReference.getId(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Cadastro efetuado com sucesso.", Toast.LENGTH_SHORT).show();
+                                finish();
                             })
                             .addOnFailureListener((OnFailureListener) e -> {
                                 e.printStackTrace();

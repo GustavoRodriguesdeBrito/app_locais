@@ -2,12 +2,14 @@ package e.gusta.gerenciador_local.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 
 import androidx.appcompat.app.AppCompatActivity;
 import e.gusta.gerenciador_local.R;
@@ -49,7 +51,12 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MainActivity.class));
             }).addOnFailureListener(e -> {
                 e.printStackTrace();
-                Toast.makeText(this, "Houve um erro", Toast.LENGTH_SHORT).show();
+                Log.i("ERRLOGIN",e.getMessage());
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(this, "E-mail e/ou senha incorreto(s)", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Houve um erro ao realizar o login", Toast.LENGTH_SHORT).show();
+                }
             });
         }
     }
