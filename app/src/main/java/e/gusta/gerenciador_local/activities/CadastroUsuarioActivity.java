@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 import androidx.appcompat.app.AppCompatActivity;
 import e.gusta.gerenciador_local.R;
@@ -30,7 +31,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
 
     public void cadastrarUsuario(View view) {
         // validar email e senha
-        if(!Patterns.EMAIL_ADDRESS.matcher(this.txtLogin.getText().toString()).matches()){
+        if (!Patterns.EMAIL_ADDRESS.matcher(this.txtLogin.getText().toString()).matches()) {
             Toast.makeText(this, "Digite um endereço de E-mail válido", Toast.LENGTH_SHORT).show();
             return;
         } else if (this.txtSenha.getText().toString().length() < 6) {
@@ -45,7 +46,11 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
                 finish();
             }).addOnFailureListener(e -> {
                 e.printStackTrace();
-                Toast.makeText(this, "Houve um erro ao cadastrar", Toast.LENGTH_SHORT).show();
+                if (e instanceof FirebaseAuthUserCollisionException) {
+                    Toast.makeText(this, "Já existe um usuário usando este E-mail", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Houve um erro ao cadastrar", Toast.LENGTH_SHORT).show();
+                }
             });
         }
     }
