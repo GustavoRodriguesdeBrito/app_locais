@@ -133,39 +133,39 @@ public class CadastroLocalActivity extends AppCompatActivity {
         //cadastrando a imagem primeiro para obter a ID dela e garantir que os dados escritos não sejam inseridos sem a imagem
         storeRef.child(nomeUnicoImagem + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
                 .addOnSuccessListener(taskSnapshot -> {
-                    Toast.makeText(this, "TASKSNAP\n" + taskSnapshot.getMetadata().toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "TASKSNAP\n" + taskSnapshot.getMetadata().getName(), Toast.LENGTH_SHORT).show();
+
+                    localACadastrar = new Local(
+                            usuarioAtual.getUid(),
+                            Calendar.getInstance().getTime(),
+                            txtDesc.getText().toString(),
+                            GPSlocal.getLatitude(),
+                            GPSlocal.getLongitude(),
+                            nomeUnicoImagem.toString()
+                    );
+
+                    // criando o objeto para enviar para o banco de dados
+                    Map<String, Object> local = new HashMap<>();
+                    local.put("idUsuario", localACadastrar.getIdUsuario());
+                    local.put("idImagem", localACadastrar.getIdImagem());
+                    local.put("descricao", localACadastrar.getDescricao());
+                    local.put("lat", localACadastrar.getLat());
+                    local.put("long", localACadastrar.getLong());
+                    local.put("dataCadastro", localACadastrar.getdataCadastro());
+
+                    db.collection("locais")
+                            .add(local)
+                            .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
+                                Toast.makeText(this, "cadastro feito. gen ID:\n" + documentReference.getId(), Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener((OnFailureListener) e -> {
+                                e.printStackTrace();
+                                Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     e.printStackTrace();
                     Toast.makeText(this, "um erro ocorreu no upload da imagem", Toast.LENGTH_SHORT).show();
-                });
-
-        localACadastrar = new Local(
-                usuarioAtual.getUid(),
-                Calendar.getInstance().getTime(),
-                txtDesc.getText().toString(),
-                GPSlocal.getLatitude(),
-                GPSlocal.getLongitude(),
-                nomeUnicoImagem.toString()
-        );
-
-        // criando o objeto para enviar para o banco de dados
-        Map<String, Object> local = new HashMap<>();
-        local.put("idUsuario", localACadastrar.getIdUsuario());
-        local.put("idImagem", localACadastrar.getIdImagem());
-        local.put("descricao", localACadastrar.getDescricao());
-        local.put("lat", localACadastrar.getLat());
-        local.put("long", localACadastrar.getLong());
-        local.put("dataCadastro", localACadastrar.getdataCadastro());
-
-        db.collection("locais")
-                .add(local)
-                .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
-                    Toast.makeText(this, "cadastro feito. gen ID:\n" + documentReference.getId(), Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener((OnFailureListener) e -> {
-                    e.printStackTrace();
-                    Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
                 });
     }
 

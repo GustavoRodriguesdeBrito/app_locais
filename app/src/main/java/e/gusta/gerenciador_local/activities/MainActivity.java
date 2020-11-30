@@ -31,7 +31,6 @@ import e.gusta.gerenciador_local.models.Local;
 public class MainActivity extends AppCompatActivity {
 
     private LinkedList<Local> listaLocais;
-    private LinkedList<Bitmap> listaImagens;
     private RecyclerView recyclerView;
     private LocalAdapter adapter;
 
@@ -45,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         listaLocais = new LinkedList<>();
-        listaImagens = new LinkedList<>();
 
         // iniciar firebase
         db = FirebaseFirestore.getInstance();
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         usuarioAtual = FirebaseAuth.getInstance().getCurrentUser();
 
         // pegar os dados
-        getDados();
+        //getDados(); // como o oncreate chama o onresume indiretamente, chame o getDados apenas no onresume
     }
 
     @Override
@@ -67,12 +65,12 @@ public class MainActivity extends AppCompatActivity {
                 .whereEqualTo("idUsuario", usuarioAtual.getUid())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-
+                    this.listaLocais.clear();
 
                     Object[] arrLocS = queryDocumentSnapshots.getDocuments().toArray();
 
-                    for (int i = 0; i < arrLocS.length; i++) {
-                        DocumentSnapshot doc = (DocumentSnapshot) arrLocS[i];
+                    for (Object arrLoc : arrLocS) {
+                        DocumentSnapshot doc = (DocumentSnapshot) arrLoc;
 
                         Local local = new Local(doc.get("idUsuario").toString(),
                                 ((Timestamp) doc.get("dataCadastro")).toDate(),
@@ -84,40 +82,23 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("Local Criado", local.toString());
                         listaLocais.add(local);
                     }
-
-                    Object[] arrLoc = listaLocais.toArray(); //FIXME: O problema deve ocorrer mais ou menos aqui
-                    for (int j = 0; j < arrLoc.length; j++) {
-                        Local loc = (Local) arrLoc[j];
-                        storeRef.child(loc.getIdImagem() + ".png").getBytes(1024 * 1024)
-                                .addOnSuccessListener(bytes -> {
-                                    //puxar os bytes e criar um bitmap
-                                    listaImagens.add(BitmapFactory.decodeStream(
-                                            new ByteArrayInputStream(bytes)
-                                    ));
-
-                                    //criar a recyclerview
-                                    recyclerView = findViewById(R.id.listarecycler);
-                                    //conectar o adapter e passar os dados
-                                    adapter = new LocalAdapter(this, listaLocais, listaImagens);
-                                    recyclerView.setAdapter(adapter);
-                                    //dar um layoutmanager padrão pra recyclerview
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-                                })
-                                .addOnCanceledListener(() -> {
-                                    Log.e("CANCELED_REQUEST", "CANCELED REQUEST FOR IMAGE");
-                                })
-                                .addOnFailureListener(e -> {
-                                    e.printStackTrace();
-                                    Toast.makeText(this, "problemas ao buscar as imagens", Toast.LENGTH_SHORT).show();
-                                });
-
-                    }
-
-                }).addOnFailureListener(e -> {
-            e.printStackTrace();
-            Toast.makeText(this, "erro ao buscar dados", Toast.LENGTH_SHORT).show();
-        });
+                    //ordenar a lista
+                    listaLocais.sort((local1, local2) -> local2.compareTo(local1));
+                    //criar a recyclerview
+                    recyclerView = findViewById(R.id.listarecycler);
+                    //conectar o adapter e passar os dados
+                    adapter = new LocalAdapter(this, listaLocais);
+                    recyclerView.setAdapter(adapter);
+                    //dar um layoutmanager padrão pra recyclerview
+                    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+                })
+                .addOnCanceledListener(() -> {
+                    Log.e("CANCELED_REQUEST", "CANCELED REQUEST FOR IMAGE");
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    Toast.makeText(this, "erro ao buscar dados", Toast.LENGTH_SHORT).show();
+                });
     }
 
     public void novoLocal(View view) {
