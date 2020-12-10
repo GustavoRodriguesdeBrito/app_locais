@@ -32,7 +32,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
     public void cadastrarUsuario(View view) {
         // validar email e senha
         if (!Patterns.EMAIL_ADDRESS.matcher(this.txtLogin.getText().toString()).matches()) {
-            Toast.makeText(this, "Digite um endereço de E-mail válido", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Digite um endereço de E-mail válido (e sem espaços)", Toast.LENGTH_SHORT).show();
             return;
         } else if (this.txtSenha.getText().toString().length() < 6) {
             Toast.makeText(this, "A senha precisa ter mais de 6 caracteres", Toast.LENGTH_SHORT).show();

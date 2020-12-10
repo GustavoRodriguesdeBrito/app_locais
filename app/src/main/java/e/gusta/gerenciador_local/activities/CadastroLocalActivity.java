@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
     private FirebaseUser usuarioAtual;
     private Bitmap imagemFull; //TODO: get img full size
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    private boolean fotoTirada;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
 
         txtCoorde = findViewById(R.id.local);
         txtDesc = findViewById(R.id.descricaoFoto);
+        fotoTirada = false;
         imagem = findViewById(R.id.foto);
         db = FirebaseFirestore.getInstance();
         storeRef = FirebaseStorage.getInstance().getReference("imagens");
@@ -74,7 +77,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
             public void onLocationChanged(Location local) {
                 if (local != null) {
                     GPSlocal = local;
-                    txtCoorde.setText(String.format("%s, %s", local.getLatitude(), local.getLongitude()));
+                    txtCoorde.setText(String.format("Localização encontrada:\n%s, %s", local.getLatitude(), local.getLongitude()));
                 }
             }
 
@@ -84,12 +87,12 @@ public class CadastroLocalActivity extends AppCompatActivity {
 
             @Override
             public void onProviderEnabled(String provider) {
-                Toast.makeText(CadastroLocalActivity.this, "location provider ON", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CadastroLocalActivity.this, "Serviço de localização ligado", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onProviderDisabled(String provider) {
-                Toast.makeText(CadastroLocalActivity.this, "location provider OFF", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CadastroLocalActivity.this, "Serviço de localização desligado", Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -124,50 +127,66 @@ public class CadastroLocalActivity extends AppCompatActivity {
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             //Log.d("==== INITIAL BMP: ==== ", imageBitmap.getWidth()+", "+imageBitmap.getHeight());
             imagem.setImageBitmap(imageBitmap);
+            fotoTirada = true;
         }
     }
 
     public void cadastrarLocal(View view) {
-        //gerando um nome único para a imagem
-        UUID nomeUnicoImagem = UUID.randomUUID();
-        //cadastrando a imagem primeiro para obter a ID dela e garantir que os dados escritos não sejam inseridos sem a imagem
-        storeRef.child(nomeUnicoImagem + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
-                .addOnSuccessListener(taskSnapshot -> {
+        if (!fotoTirada || GPSlocal == null || TextUtils.isEmpty(txtDesc.getText().toString())) {
+            // montar a mensagem de erro
+            StringBuilder msgErro = new StringBuilder();
+            if (!fotoTirada) {
+                msgErro.append("\nFoto não foi tirada");
+            }
+            if (GPSlocal == null) {
+                msgErro.append("\nLocalização não encontrada");
+            }
+            if (TextUtils.isEmpty(txtDesc.getText().toString())) {
+                msgErro.append("\nDescrição vazia");
+            }
+            Toast.makeText(this, "Dados não preenchidos:" + msgErro.toString(), Toast.LENGTH_SHORT).show();
+        } else {
+            //gerando um nome único para a imagem
+            UUID nomeUnicoImagem = UUID.randomUUID();
+            //cadastrando a imagem primeiro para obter a ID dela e garantir que os dados escritos não sejam inseridos sem a imagem
+            storeRef.child(nomeUnicoImagem + ".png").putBytes(BitMapper.getBitMapDeImageView(imagem))
+                    .addOnSuccessListener(taskSnapshot -> {
 
-                    localACadastrar = new Local(
-                            "",
-                            usuarioAtual.getUid(),
-                            Calendar.getInstance().getTime(),
-                            txtDesc.getText().toString(),
-                            GPSlocal.getLatitude(),
-                            GPSlocal.getLongitude(),
-                            nomeUnicoImagem.toString()
-                    );
+                        localACadastrar = new Local(
+                                "",
+                                usuarioAtual.getUid(),
+                                Calendar.getInstance().getTime(),
+                                txtDesc.getText().toString(),
+                                GPSlocal.getLatitude(),
+                                GPSlocal.getLongitude(),
+                                nomeUnicoImagem.toString()
+                        );
 
-                    // criando o objeto para enviar para o banco de dados
-                    Map<String, Object> local = new HashMap<>();
-                    local.put("idUsuario", localACadastrar.getIdUsuario());
-                    local.put("idImagem", localACadastrar.getIdImagem());
-                    local.put("descricao", localACadastrar.getDescricao());
-                    local.put("lat", localACadastrar.getLat());
-                    local.put("long", localACadastrar.getLong());
-                    local.put("dataCadastro", localACadastrar.getdataCadastro());
+                        // criando o objeto para enviar para o banco de dados
+                        Map<String, Object> local = new HashMap<>();
+                        local.put("idUsuario", localACadastrar.getIdUsuario());
+                        local.put("idImagem", localACadastrar.getIdImagem());
+                        local.put("descricao", localACadastrar.getDescricao());
+                        local.put("lat", localACadastrar.getLat());
+                        local.put("long", localACadastrar.getLong());
+                        local.put("dataCadastro", localACadastrar.getdataCadastro());
 
-                    db.collection("locais")
-                            .add(local)
-                            .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
-                                Toast.makeText(this, "Cadastro efetuado com sucesso.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            })
-                            .addOnFailureListener((OnFailureListener) e -> {
-                                e.printStackTrace();
-                                Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    e.printStackTrace();
-                    Toast.makeText(this, "um erro ocorreu no upload da imagem", Toast.LENGTH_SHORT).show();
-                });
+                        db.collection("locais")
+                                .add(local)
+                                .addOnSuccessListener((OnSuccessListener<DocumentReference>) documentReference -> {
+                                    Toast.makeText(this, "Cadastro efetuado com sucesso.", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener((OnFailureListener) e -> {
+                                    e.printStackTrace();
+                                    Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
+                                });
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        Toast.makeText(this, "um erro ocorreu no upload da imagem", Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 
     public void voltar(View view) {
@@ -189,10 +208,10 @@ public class CadastroLocalActivity extends AppCompatActivity {
 
         } else {
             //pegar a localização
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 5, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListener);
             Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (locationGPS != null) {
-                Toast.makeText(this, locationGPS.getLatitude() + ", " + locationGPS.getLongitude(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, locationGPS.getLatitude() + ", " + locationGPS.getLongitude(), Toast.LENGTH_SHORT).show();
                 return locationGPS;
             } else {
                 Toast.makeText(this, "Localização não encontrada.", Toast.LENGTH_SHORT).show();
@@ -210,7 +229,7 @@ public class CadastroLocalActivity extends AppCompatActivity {
                 // array de resultados de permissão estarão vazios se permissão for negada
                 if (grantResults.length > 0 &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, permissions[0] + "\npermit granted", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, permissions[0] + "\npermit granted", Toast.LENGTH_SHORT).show();
                     getLocal();
                 } else {
                     Toast.makeText(this, "Este app não irá funcionar sem a permissão", Toast.LENGTH_SHORT).show();

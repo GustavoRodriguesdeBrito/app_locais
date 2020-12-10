@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 import androidx.appcompat.app.AppCompatActivity;
 import e.gusta.gerenciador_local.R;
@@ -37,11 +38,9 @@ public class LoginActivity extends AppCompatActivity {
 
         // validar email e senha
         if (!Patterns.EMAIL_ADDRESS.matcher(this.txtLogin.getText().toString()).matches()) {
-            Toast.makeText(this, "Digite um endereço de E-mail válido", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(this, "Digite um endereço de E-mail válido (e sem espaços)", Toast.LENGTH_SHORT).show();
         } else if (this.txtSenha.getText().toString().length() < 6) {
             Toast.makeText(this, "A senha precisa ter mais de 6 caracteres", Toast.LENGTH_SHORT).show();
-            return;
         } else {
             auth.signInWithEmailAndPassword(
                     txtLogin.getText().toString(),
@@ -54,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("ERRLOGIN",e.getMessage());
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     Toast.makeText(this, "E-mail e/ou senha incorreto(s)", Toast.LENGTH_SHORT).show();
+                } if (e instanceof FirebaseAuthInvalidUserException) {
+                    Toast.makeText(this, "E-mail de usuário não encontrado", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Houve um erro ao realizar o login", Toast.LENGTH_SHORT).show();
                 }
